@@ -1,8 +1,8 @@
 #!/bin/bash
 # ==============================================================================
-# [모듈 이름] 1.fetch.sh - Prometheus 메트릭 추출 도구 (단위 교정판)
+# [모듈 이름] 1.fetch.sh - Prometheus 메트릭 추출 도구 (Mbps 단위)
 #
-# [설명] 데이터를 추출하며 네트워크 단위는 MB/s(MegaBytes per second)로 변환합니다.
+# [설명] 데이터를 추출하며 네트워크 단위는 Mbps(Mega bits per second)로 변환합니다.
 # ==============================================================================
 
 # 0. 설정 로드
@@ -48,8 +48,8 @@ format_to_text() {
       "- CPU: " + ([$root.cpu[]? | select(.metric.instance == $node.instance and .metric.job == $node.job).value[1]] | first // "0" | tonumber | round | tostring) + "%\n" +
       "- MEM: " + ([$root.memory[]? | select(.metric.instance == $node.instance and .metric.job == $node.job).value[1]] | first // "0" | tonumber | round | tostring) + "%\n" +
       "- DISK: " + ([$root.storage[]? | select(.metric.instance == $node.instance and .metric.job == $node.job).value[1]] | first // "0" | tonumber | round | tostring) + "%\n" +
-      "- Net RX: " + (([$root.net_rx[]? | select(.metric.instance == $node.instance and .metric.job == $node.job).value[1]] | first // "0" | tonumber) / 1048576 | . * 100 | round | . / 100 | tostring) + " MB/s\n" +
-      "- Net TX: " + (([$root.net_tx[]? | select(.metric.instance == $node.instance and .metric.job == $node.job).value[1]] | first // "0" | tonumber) / 1048576 | . * 100 | round | . / 100 | tostring) + " MB/s\n"
+      "- Net RX: " + (([$root.net_rx[]? | select(.metric.instance == $node.instance and .metric.job == $node.job).value[1]] | first // "0" | tonumber) * 8 / 1000000 | . * 100 | round | . / 100 | tostring) + " Mbps\n" +
+      "- Net TX: " + (([$root.net_tx[]? | select(.metric.instance == $node.instance and .metric.job == $node.job).value[1]] | first // "0" | tonumber) * 8 / 1000000 | . * 100 | round | . / 100 | tostring) + " Mbps\n"
     '
 }
 
@@ -59,7 +59,7 @@ RAW_YESTERDAY=$(fetch_metrics_at "$TIME_YESTERDAY")
 
 echo "=== SERVER METRIC TREND REPORT ==="
 echo "Generated at: $(date '+%Y-%m-%d %H:%M:%S')"
-echo "Units: CPU/MEM/DISK (%), Network (MB/s)"
+echo "Units: CPU/MEM/DISK (%), Network (Mbps)"
 echo ""
 format_to_text "TODAY (NOW)" "$RAW_NOW"
 echo ""
