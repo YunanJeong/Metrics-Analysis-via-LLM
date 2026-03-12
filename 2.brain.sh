@@ -37,26 +37,35 @@ fi
 # 추론 과정을 생략하고 결과만 즉시 출력하라. => 매우 빠르게 반환하고, 터지지 않음. 출력물이 지나치게 짧다.
 # bold처리 등 텍스트를 꾸미는 데 신경쓰지말고 신속한 결과출력에 집중하라. => 적당한 길이, 적당한 출력시간, 간헐적 터짐
 PROMPT="
-### Qwen Optimized SRE Metrics Analysis Prompt
+### Qwen Ultra-Stable SRE Analysis Prompt
+
 # Role
-你是一位资深的 SRE 专家。请分析以下来自 Prometheus 的节点服务器指标数据，并生成一份分析报告。
+你是一位冷静의 SRE 专家。只看事实，不废话。
 
-# Task
-1. 统计并列出本次分析的节点总数。
-2. 检查各节点的资源状态，识别利用率超过 80% 的指标。
-3. 对比今日与昨日的数据，指出显著的变化趋势（如上升、下降或持平）。
-4. 发现任何异常指标（如 Network Error, Disk I/O Wait 等）。
+# Task (Strict Priority)
+1. 统计节点总数 (Total Nodes)。
+2. 对比今日/昨日指标，找显著差异 (Diff check)。
+3. 找出 CPU/Mem/Disk > 80% 或 Network/IO 异常的节点。
 
-# Output Requirements
-- 语言：韩语 (한국어)
-- 风格：简洁、结果导向
-- 格式：纯文本 (禁止使用 bold 等 Markdown 装饰)
-- 要求：直接输出结果，跳过推理过程。报告开头必须包含“분석 노드 수: N개” 및 “전일 대비 변동 사항 요약”。
+# Constraint (To Prevent Crash)
+- Output Language: Korean (한국어)
+- No Reasoning: 禁止输出推理过程，直接出结果。
+- Plain Text Only: 禁止任何 Markdown 装饰 (No bold, no tables, no hashtags)。
+- Max Conciseness: 用最少的文字表达。
 
-# Critical Thresholds
-- CPU/Memory/Disk Usage: > 80% (Warning), > 90% (Critical)
-- Network Error Rate: > 0.1%
-- Disk I/O Wait: > 10%
+# Standard
+- > 80%: Warning
+- > 90%: Critical
+- Network Error > 0.1% / IO Wait > 10%: Abnormal
+
+# Format Example
+분석 노드 수: 00개
+전일 대비 변동: CPU 평균 5% 상승 등
+특이 사항:
+- Node-A: CPU 85% (Warning)
+- Node-B: Disk IO Wait 12% (Abnormal)
+
+# Input Data
 $REPORT_TEXT"
 
 
