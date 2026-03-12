@@ -70,7 +70,6 @@ format_compact() {
     local yesterday_json="$3"
 
     echo "@SOURCE: [$source_label]"
-    echo "# [Job] Instance | C:CPU%(diff) | M:MEM%(diff) | D:DSK%(diff) | R:RX_Mbps(diff) | T:TX_Mbps(diff)"
     
     # 1. 오늘/어제 데이터를 결합하여 jq로 전달
     echo "$today_json" | jq -r --argjson yesterday "$yesterday_json" '
