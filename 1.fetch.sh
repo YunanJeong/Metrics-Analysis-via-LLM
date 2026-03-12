@@ -69,10 +69,8 @@ format_compact() {
     local today_json="$2"
     local yesterday_json="$3"
 
-    echo "@SOURCE: [$source_label]"
-    
     # 1. 오늘/어제 데이터를 결합하여 jq로 전달
-    echo "$today_json" | jq -r --argjson yesterday "$yesterday_json" '
+    echo "$today_json" | jq -r --arg src "$source_label" --argjson yesterday "$yesterday_json" '
       . as $today |
       ([.[] | .[]? | {instance: .metric.instance, job: .metric.job}] | unique)[] as $node |
       
@@ -105,8 +103,8 @@ format_compact() {
       fmt_diff($rx0; $rx1) as $rx_diff |
       fmt_diff($tx0; $tx1) as $tx_diff |
       
-      # 최종 출력 포맷팅
-      "[" + $node.job + "] " + $node.instance + " | " + 
+      # 최종 출력 포맷팅 (Source/Job/Instance 통합)
+      $src + "/" + $node.job + "/" + $node.instance + " | " + 
       "C:" + ($c0|tostring) + "%" + $cs + "(" + $cdstr + ") | " +
       "M:" + ($m0|tostring) + "%" + $ms + "(" + $mdstr + ") | " +
       "D:" + ($d0|tostring) + "%" + $ds + "(" + $ddstr + ") | " +
@@ -122,13 +120,12 @@ cat <<EOF
 # ==============================================================================
 # [SRE METRIC SPECIFICATION]
 # All (diff): 24h delta (Current - Yesterday)
-# 1. [Job]      : Service group
-# 2. Instance   : IP:Port
-# 3. C:CPU%     : 5min avg usage
-# 4. M:MEM%     : Current usage
-# 5. D:DSK%     : Current usage
-# 6. R:RX_Mbps  : Inbound Mbps
-# 7. T:TX_Mbps  : Outbound Mbps
+# 1. ID         : Source/Job/Instance
+# 2. C:CPU%     : 5min avg usage
+# 3. M:MEM%     : Current usage
+# 4. D:DSK%     : Current usage
+# 5. R:RX_Mbps  : Inbound Mbps
+# 6. T:TX_Mbps  : Outbound Mbps
 
 # [Status Symbols]
 # - '!'  : Warning (> 80%)
@@ -155,5 +152,4 @@ for target in $PROM_TARGETS; do
     
     # 컴팩트 포맷 출력
     format_compact "$LABEL" "$RAW_NOW" "$RAW_YESTERDAY"
-    echo ""
 done

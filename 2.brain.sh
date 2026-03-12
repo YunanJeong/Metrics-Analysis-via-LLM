@@ -63,8 +63,8 @@ PROMPT="
 분석 노드 수: 00개
 전일 대비 변동: CPU 평균 5% 상승 등
 특이 사항:
-- Node-A(Source-1): CPU 85% (Warning)
-- Node-B(Source-2): Disk IO Wait 12% (Abnormal)
+- Node-A: CPU 85% (Warning)
+- Node-B: Disk IO Wait 12% (Abnormal)
 
 # Input Data
 $REPORT_TEXT"
