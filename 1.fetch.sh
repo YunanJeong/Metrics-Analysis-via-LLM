@@ -121,20 +121,19 @@ format_compact() {
 # 리포트 명세(Specification) 출력 - LLM 학습용
 cat <<EOF
 # ==============================================================================
-# [SRE SERVER METRIC REPORT - DATA SPECIFICATION]
-# 이 리포트는 다음 형식을 따르며, 모든 수치는 24시간 전과 비교한 증감폭(diff)을 포함합니다.
-#
-# 1. [Job] : 서비스 이름 또는 그룹 식별자입니다.
-# 2. Instance : 서버의 전체 IP 주소와 포트 번호입니다.
-# 3. CPU% (diff) : 최근 5분 평균 CPU 사용률(%)
-# 4. MEM% (diff) : 현재 메모리 사용률(%)
-# 5. DISK% (diff) : 현재 디스크 사용률(%)
-# 6. R:RX (diff) : 네트워크 수신(RX) 속도(Mbps)
-# 7. T:TX (diff) : 네트워크 송신(TX) 속도(Mbps)
-#
-# [상태 알림 기호]
-# - '!'  : 해당 리소스 사용량이 80%를 초과하여 주의가 필요함을 의미합니다.
-# - '!!' : 해당 리소스 사용량이 90%를 초과하여 즉각적인 조치가 필요한 위험 상태입니다.
+# [SRE METRIC SPECIFICATION]
+# All (diff): 24h delta (Current - Yesterday)
+# 1. [Job]      : Service group
+# 2. Instance   : IP:Port
+# 3. C:CPU%     : 5min avg usage
+# 4. M:MEM%     : Current usage
+# 5. D:DSK%     : Current usage
+# 6. R:RX_Mbps  : Inbound Mbps
+# 7. T:TX_Mbps  : Outbound Mbps
+
+# [Status Symbols]
+# - '!'  : Warning (> 80%)
+# - '!!' : Critical (> 90%)
 # ==============================================================================
 EOF
 
