@@ -52,6 +52,7 @@ PROMPT="
 - No Reasoning: 禁止输出推理过程，直接出结果。
 - Plain Text Only: 禁止任何 Markdown 装饰 (No bold, no tables, no hashtags)。
 - Max Conciseness: 用最少的文字表达。
+- No Excuse: 禁止解释数据缺失(如 Error counts)。直接忽略缺失指标，禁止输出 'Input data doesn't provide' 等废话。
 
 # Standard
 - > 80%: Warning
