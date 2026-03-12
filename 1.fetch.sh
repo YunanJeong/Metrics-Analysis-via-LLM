@@ -120,7 +120,7 @@ cat <<EOF
 # ==============================================================================
 # [SRE METRIC SPECIFICATION]
 # All (diff): 24h delta (Current - Yesterday)
-# 1. ID         : Source/Job/Instance
+# 1. N:NodeID   : Node Identifier
 # 2. C:CPU%     : 5min avg usage
 # 3. M:MEM%     : Current usage
 # 4. D:DSK%     : Current usage
@@ -137,6 +137,9 @@ EOF
 echo "Generated at: $(date '+%Y-%m-%d %H:%M:%S')"
 echo ""
 
+# 결과 수집용 변수
+RAW_RESULTS=""
+
 # PROM_TARGETS 순회 (줄바꿈 또는 공백으로 구분된 "LABEL|URL" 목록)
 for target in $PROM_TARGETS; do
     # 빈 줄 제외
@@ -150,6 +153,43 @@ for target in $PROM_TARGETS; do
     TIME_YESTERDAY=$(date -d "24 hours ago" +%s)
     RAW_YESTERDAY=$(fetch_raw_json "$URL" "$TIME_YESTERDAY")
     
-    # 컴팩트 포맷 출력
-    format_compact "$LABEL" "$RAW_NOW" "$RAW_YESTERDAY"
+    # 컴팩트 포맷 수집
+    RESULT=$(format_compact "$LABEL" "$RAW_NOW" "$RAW_YESTERDAY")
+    if [ -n "$RESULT" ]; then
+        RAW_RESULTS+="$RESULT"$'\n'
+    fi
+done
+
+# Node ID 단순화 및 매핑 테이블 생성
+declare -A ID_MAP
+declare -a ID_LIST
+COUNTER=1
+FINAL_METRICS=""
+
+while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    
+    # 첫 번째 '|'를 기준으로 ID와 메트릭 분리
+    FULL_ID=$(echo "$line" | cut -d'|' -f1 | xargs)
+    METRICS=$(echo "$line" | cut -d'|' -f2-)
+    
+    # ID가 처음 등장하면 매핑 등록
+    if [[ -z "${ID_MAP[$FULL_ID]}" ]]; then
+        SHORT_ID="N:$COUNTER"
+        ID_MAP[$FULL_ID]=$SHORT_ID
+        ID_LIST+=("$SHORT_ID | $FULL_ID")
+        ((COUNTER++))
+    fi
+    
+    FINAL_METRICS+="${ID_MAP[$FULL_ID]} |$METRICS"$'\n'
+done <<< "$RAW_RESULTS"
+
+# 1. 메트릭 테이블 출력
+echo "# [METRIC REPORT]"
+echo -e "$FINAL_METRICS"
+
+# 2. 노드 ID 매핑 테이블 출력
+echo "# [NODE ID MAPPING TABLE]"
+for mapping in "${ID_LIST[@]}"; do
+    echo "$mapping"
 done
