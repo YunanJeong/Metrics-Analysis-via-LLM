@@ -80,10 +80,13 @@ format_compact() {
       # 헬퍼 함수: 특정 노드의 지표 추출 (없으면 0)
       def get_val(dataset; key): (dataset[key][]? | select(.metric.instance == $node.instance and .metric.job == $node.job).value[1] | tonumber) // 0;
       
+      # 헬퍼 함수: 소수점 1자리 반올림
+      def to_f1: . * 10 | round / 10;
+
       # 지표 계산 (오늘/어제)
-      (get_val($today; "cpu") | round) as $c0 | (get_val($yesterday; "cpu") | round) as $c1 |
-      (get_val($today; "memory") | round) as $m0 | (get_val($yesterday; "memory") | round) as $m1 |
-      (get_val($today; "storage") | round) as $d0 | (get_val($yesterday; "storage") | round) as $d1 |
+      (get_val($today; "cpu") | to_f1) as $c0 | (get_val($yesterday; "cpu") | to_f1) as $c1 |
+      (get_val($today; "memory") | to_f1) as $m0 | (get_val($yesterday; "memory") | to_f1) as $m1 |
+      (get_val($today; "storage") | to_f1) as $d0 | (get_val($yesterday; "storage") | to_f1) as $d1 |
       (get_val($today; "net_rx") * 8 / 1000000) as $rx0 | (get_val($yesterday; "net_rx") * 8 / 1000000) as $rx1 |
       (get_val($today; "net_tx") * 8 / 1000000) as $tx0 | (get_val($yesterday; "net_tx") * 8 / 1000000) as $tx1 |
       
@@ -93,27 +96,23 @@ format_compact() {
       (if $d0 >= 90 then "!!" elif $d0 >= 80 then "!" else "" end) as $ds |
       
       # Diff 포맷팅 함수
-      def fmt_diff(now; old; is_net): 
-        (now - old) as $diff | 
-        if is_net then
-          (if $diff >= 0 then "+" + ($diff*10|round/10|tostring) else ($diff*10|round/10|tostring) end)
-        else
-          (if $diff >= 0 then "+" + ($diff|tostring) else ($diff|tostring) end)
-        end;
+      def fmt_diff(now; old): 
+        (now - old | to_f1) as $diff | 
+        (if $diff >= 0 then "+" + ($diff|tostring) else ($diff|tostring) end);
 
-      fmt_diff($c0; $c1; false) as $cdstr |
-      fmt_diff($m0; $m1; false) as $mdstr |
-      fmt_diff($d0; $d1; false) as $ddstr |
-      fmt_diff($rx0; $rx1; true) as $rx_diff |
-      fmt_diff($tx0; $tx1; true) as $tx_diff |
+      fmt_diff($c0; $c1) as $cdstr |
+      fmt_diff($m0; $m1) as $mdstr |
+      fmt_diff($d0; $d1) as $ddstr |
+      fmt_diff($rx0; $rx1) as $rx_diff |
+      fmt_diff($tx0; $tx1) as $tx_diff |
       
       # 최종 출력 포맷팅
       "[" + $node.job + "] " + $node.instance + " | " + 
       "C:" + ($c0|tostring) + "%" + $cs + "(" + $cdstr + ") | " +
       "M:" + ($m0|tostring) + "%" + $ms + "(" + $mdstr + ") | " +
       "D:" + ($d0|tostring) + "%" + $ds + "(" + $ddstr + ") | " +
-      "R:" + ($rx0*10|round/10|tostring) + "Mbps(" + $rx_diff + ") | " +
-      "T:" + ($tx0*10|round/10|tostring) + "Mbps(" + $tx_diff + ")"
+      "R:" + ($rx0|to_f1|tostring) + "Mbps(" + $rx_diff + ") | " +
+      "T:" + ($tx0|to_f1|tostring) + "Mbps(" + $tx_diff + ")"
     '
 }
 
