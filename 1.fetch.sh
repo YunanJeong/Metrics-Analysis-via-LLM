@@ -28,10 +28,11 @@
 # ==============================================================================
 
 # 0. 설정 로드
-if [ -f "./0.env" ]; then
-    source ./0.env
+ENV_FILE=${1:-"./0.env"}
+if [ -f "$ENV_FILE" ]; then
+    source "$ENV_FILE"
 else
-    # 0.env가 없으면 기본값 사용
+    # 환경변수 파일이 없으면 기본값 사용
     PROM_TARGETS=${PROM_TARGETS:-"PRODUCTION-SEOUL|http://monitor.wai:9090"}
 fi
 

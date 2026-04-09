@@ -44,12 +44,41 @@ AI_API_URL="http://localhost:11434"
 
 ## 🚀 사용 방법
 
+### 기본 실행
+
 ```bash
 # 1. 실행 권한 부여
 chmod +x *.sh
 
-# 2. 실행
+# 2. 기본 환경변수 파일(0.env)로 실행
 ./run.sh
+```
+
+### 환경변수 파일 지정
+
+각 스크립트는 첫 번째 파라미터로 환경변수 파일 경로를 받을 수 있습니다.
+
+```bash
+# 전체 파이프라인 실행 (다른 환경 설정 사용)
+./run.sh prod.env
+./run.sh dev.env
+./run.sh staging.env
+
+# 개별 모듈 단독 실행 예시
+./1.fetch.sh prod.env                        # 메트릭만 수집
+cat report.txt | ./2.brain.sh dev.env        # AI 분석만 실행
+cat analysis.txt | ./3.mail.sh prod.env      # 메일만 발송
+```
+
+### 환경변수 우선순위
+
+1. **직접 전달한 환경변수** (최우선)
+2. 파라미터로 지정한 환경변수 파일
+3. 기본 환경변수 파일 (`./0.env`)
+
+```bash
+# 예시: PROM_TARGETS만 임시로 변경하고 나머지는 prod.env 사용
+PROM_TARGETS="TEST|http://test:9090" ./1.fetch.sh prod.env
 ```
 
 ---

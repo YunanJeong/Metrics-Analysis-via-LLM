@@ -11,9 +11,10 @@
 # ==============================================================================
 
 # 0. 설정 로드 (프로젝트 내 사용 시)
-[ -f "./0.env" ] && source ./0.env
+ENV_FILE=${1:-"./0.env"}
+[ -f "$ENV_FILE" ] && source "$ENV_FILE"
 
-# 1. 환경변수 우선, 없으면 설정파일(0.env)에서 가져온 변수 사용
+# 1. 환경변수 우선, 없으면 설정파일(ENV_FILE)에서 가져온 변수 사용
 RECIPIENT=${RECIPIENT:-$MAIL_RECIPIENT}
 SUBJECT=${SUBJECT:-$MAIL_SUBJECT}
 SUBJECT=${SUBJECT:-"[SRE Report] Server Resource AI Analysis ($(date +'%Y-%m-%d %H:%M'))"}
