@@ -31,14 +31,59 @@ DEVELOP-OFFICE|http://office-monitor:9090
 ```
 
 ### [2] AI 엔진 선택
-로컬 LLM(Ollama) 또는 상용 API(OpenAI 등)를 선택할 수 있습니다.
+다음 세 가지 AI 엔진 중 하나를 선택할 수 있습니다.
 
-#### 🏠 로컬 LLM (Ollama 등)
+#### 🏠 옵션 1: 로컬 LLM (Ollama)
 ```bash
 AI_TYPE="local"
 AI_MODEL="qwen3.5:9b"
 AI_API_URL="http://localhost:11434"
 ```
+
+#### ☁️ 옵션 2: 상용 API (OpenAI 등)
+```bash
+AI_TYPE="api"
+AI_MODEL="gpt-4o"
+AI_API_KEY="sk-..."
+AI_API_URL="https://api.openai.com/v1"
+```
+
+#### 🔶 옵션 3: AWS Bedrock
+```bash
+AI_TYPE="bedrock"
+AI_MODEL="arn:aws:bedrock:ap-northeast-2::foundation-model/anthropic.claude-3-7-sonnet-20250219-v1:0"
+AWS_REGION="ap-northeast-2"
+```
+
+**AWS 인증 필요:**
+```bash
+# 방법 1: AWS CLI 설정
+aws configure
+
+# 방법 2: 환경변수
+export AWS_ACCESS_KEY_ID="..."
+export AWS_SECRET_ACCESS_KEY="..."
+
+# 사용 가능한 모델 확인
+aws bedrock list-foundation-models --region ap-northeast-2
+```
+
+### [3] AI 프롬프트 커스터마이징 (선택사항)
+
+기본 프롬프트가 제공되므로 설정하지 않아도 됩니다. 필요시 `AI_PROMPT` 환경변수로 프롬프트를 커스터마이징할 수 있습니다.
+
+```bash
+# 0.env 또는 다른 환경변수 파일에 추가
+AI_PROMPT="
+You are an SRE expert. Analyze server metrics and provide insights.
+Focus on anomalies, resource usage trends, and potential issues.
+Output in Korean, use plain text only (no Markdown).
+"
+```
+
+**⚠️ 주의사항:**
+- **AWS Bedrock 사용 시**: ASCII 문자만 사용 가능 (한글, 중국어 등 직접 사용 불가)
+- bedrock.env에는 영어 프롬프트가 미리 설정되어 있습니다
 
 ---
 
@@ -66,7 +111,8 @@ chmod +x *.sh
 
 # 개별 모듈 단독 실행 예시
 ./1.fetch.sh prod.env                        # 메트릭만 수집
-cat report.txt | ./2.brain.sh dev.env        # AI 분석만 실행
+cat report.txt | ./2.brain.sh dev.env        # AI 분석만 실행 (로컬 LLM)
+cat report.txt | ./2.brain.sh bedrock.env    # AI 분석만 실행 (Bedrock)
 cat analysis.txt | ./3.mail.sh prod.env      # 메일만 발송
 ```
 
