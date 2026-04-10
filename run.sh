@@ -30,20 +30,20 @@ ANALYSIS_RESULT=$(echo "$REPORT_TEXT" | \
 
 # 4. 헤더/푸터 설정 (여기서 직접 수정)
 REPORT_HEADER=""
-REPORT_FOOTER="Powered by Metric-LLM-Reporter"
+REPORT_FOOTER="Powered by Metric-LLM-Reporter / $AI_MODEL"
 
 # 5. 최종 리포트 생성
 if [ -n "$ANALYSIS_RESULT" ]; then
     FINAL_REPORT="${REPORT_HEADER}
 
+================ [AI SRE ANALYSIS] ================
 ${ANALYSIS_RESULT}
+===================================================
 
 ${REPORT_FOOTER}"
 
     # 6. 콘솔 출력
-    echo "================ [AI SRE ANALYSIS] ================"
     echo "$FINAL_REPORT"
-    echo "==================================================="
 
     # # 7. 메일 발송
     # echo "$FINAL_REPORT" | \
