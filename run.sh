@@ -46,8 +46,8 @@ ${REPORT_FOOTER}"
     echo "$FINAL_REPORT"
 
     # # 7. 메일 발송
-    # echo "$FINAL_REPORT" | \
-    # RECIPIENT="$MAIL_RECIPIENT" \
-    # SUBJECT="$MAIL_SUBJECT ($(date +'%Y-%m-%d %H:%M'))" \
-    # ./3.mail.sh "$ENV_FILE"
+    echo "$FINAL_REPORT" | \
+    RECIPIENT="$MAIL_RECIPIENT" \
+    SUBJECT="$MAIL_SUBJECT ($(date +'%Y-%m-%d %H:%M'))" \
+    ./3.mail.sh "$ENV_FILE"
 fi
