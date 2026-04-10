@@ -28,14 +28,25 @@ ANALYSIS_RESULT=$(echo "$REPORT_TEXT" | \
     AI_API_URL="$AI_API_URL" \
     ./2.brain.sh "$ENV_FILE")
 
-# 4. 분석 결과 출력 및 메일 발송
+# 4. 헤더/푸터 설정 (여기서 직접 수정)
+REPORT_HEADER=""
+REPORT_FOOTER="Powered by Metric-LLM-Reporter"
+
+# 5. 최종 리포트 생성
 if [ -n "$ANALYSIS_RESULT" ]; then
+    FINAL_REPORT="${REPORT_HEADER}
+
+${ANALYSIS_RESULT}
+
+${REPORT_FOOTER}"
+
+    # 6. 콘솔 출력
     echo "================ [AI SRE ANALYSIS] ================"
-    echo "$ANALYSIS_RESULT"
+    echo "$FINAL_REPORT"
     echo "==================================================="
 
-    # # 5. 메일 발송
-    # echo "$ANALYSIS_RESULT" | \
+    # # 7. 메일 발송
+    # echo "$FINAL_REPORT" | \
     # RECIPIENT="$MAIL_RECIPIENT" \
     # SUBJECT="$MAIL_SUBJECT ($(date +'%Y-%m-%d %H:%M'))" \
     # ./3.mail.sh "$ENV_FILE"
