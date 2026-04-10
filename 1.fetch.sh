@@ -135,7 +135,7 @@ cat <<EOF
 EOF
 
 # 리포트 메타 정보 출력
-echo "Generated at: $(date '+%Y-%m-%d %H:%M:%S')"
+echo "Generated at: $(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M:%S %Z')"
 echo ""
 
 # 결과 수집용 변수
