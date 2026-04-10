@@ -166,7 +166,7 @@ EOF
       --model-id "$AI_MODEL" \
       --body "fileb://$TEMP_INPUT" \
       --region "$AWS_REGION" \
-      "$TEMP_OUTPUT" 2>"$TEMP_ERROR"
+      "$TEMP_OUTPUT" 2>"$TEMP_ERROR" >/dev/null
 
     AWS_EXIT_CODE=$?
 
@@ -190,7 +190,8 @@ EOF
     fi
 
     # 응답 파싱 (Claude 모델의 응답 형식)
-    RESULT=$(jq -r '.content[0].text // .message // empty' "$TEMP_OUTPUT")
+    # type이 "text"인 content만 추출하여 메타데이터 제외
+    RESULT=$(jq -r '[.content[] | select(.type == "text") | .text] | join("\n")' "$TEMP_OUTPUT")
 
     # 디버깅: 응답이 비어있으면 전체 응답 출력
     if [ -z "$RESULT" ] || [ "$RESULT" == "null" ]; then
