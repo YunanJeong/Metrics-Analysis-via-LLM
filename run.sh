@@ -48,6 +48,6 @@ ${REPORT_FOOTER}"
     # # 7. 메일 발송
     echo "$FINAL_REPORT" | \
     RECIPIENT="$MAIL_RECIPIENT" \
-    SUBJECT="$MAIL_SUBJECT ($(date +'%Y-%m-%d %H:%M'))" \
+    SUBJECT="$MAIL_SUBJECT ($(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M:%S %Z'))" \
     ./3.mail.sh "$ENV_FILE"
 fi
